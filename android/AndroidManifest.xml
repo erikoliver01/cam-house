@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CAM house: video e controle direto da camera, sem o PC. O build renomeia o pacote para com.erik.camhouse
+     (opcao rename-manifest-package do aapt2), o mesmo do app antigo: instala por cima dele. O codigo segue em com.erik.camhouse.direto. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.erik.camhouse.direto">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <application
+        android:label="CAM house"
+        android:icon="@mipmap/ic_launcher"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+        <activity
+            android:name="com.erik.camhouse.direto.MainActivity"
+            android:exported="true"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

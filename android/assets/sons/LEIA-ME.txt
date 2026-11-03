@@ -1,0 +1,3 @@
+Sons que vem dentro do APK (formato A-law 8 kHz mono, extensao .al).
+Copie para ca os .al criados com  node converter-som.js  (pasta pc) antes de rodar o build.ps1.
+Cada arquivo vira um botao no menu "Sons" do app. Use so audios que voce tem direito de usar.

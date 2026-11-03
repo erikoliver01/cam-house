@@ -1,0 +1,8 @@
+{
+  "cameras": {
+    "porta":   { "user": "PREENCHA_USUARIO_DA_CAMERA_1", "pass": "PREENCHA_SENHA_DA_CAMERA_1" },
+    "camera2": { "user": "PREENCHA_USUARIO_DA_CAMERA_2", "pass": "PREENCHA_SENHA_DA_CAMERA_2" }
+  },
+  "telegram": { "botToken": "PREENCHA_TOKEN_DO_BOT" },
+  "app": { "senha": "PREENCHA_SENHA_DO_APP" }
+}

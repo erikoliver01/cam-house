@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Mapa da casa</title>
+<!-- Mapa da casa do app: mesmo visual e comportamento do painel do public/index.html.
+     Fala com o app so por links camhouse:// (sem ponte de JavaScript). Ponto inicial vem no #lat=..&lon=.. -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+<style>
+  @font-face { font-family:"Lexend"; src:url(fonts/Lexend.ttf); font-weight:100 900; }
+  :root { --bg:#1a0726; --panel:#25103a; --panel-2:#30164a; --line:#6b4a8f; --g1:#ff6ad5; --g2:#ff1fc8; --g3:#a10f9a;
+    --grad:linear-gradient(160deg,var(--g1),var(--g2) 55%,var(--g3)); --info:#38b6ff; --bad:#ff4d6d; --fg:#f4ecff; --ink:#fff; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; background:var(--panel); color:var(--fg); font:300 14px/1.5 "Lexend",sans-serif; }
+  body { display:flex; flex-direction:column; }
+  .bar { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:14px 16px 10px; }
+  .bar h2 { margin:0; font-weight:700; font-size:13px; letter-spacing:.06em; text-transform:uppercase; }
+  .bar p { margin:3px 0 0; font-size:11px; color:var(--info); }
+  .acoes { display:flex; gap:8px; align-items:center; flex:none; }
+  button { font-family:inherit; color:var(--fg); cursor:pointer; }
+  .btn { border:1.5px solid var(--line); background:var(--panel-2); border-radius:999px; padding:6px 14px; font-size:12px; font-weight:500; min-height:32px; }
+  .btn.forte { background:var(--grad); border-color:transparent; color:var(--ink); font-weight:700; }
+  .round { width:32px; height:32px; border-radius:50%; border:1.5px solid currentColor; display:grid; place-items:center; background:transparent; padding:0; }
+  .round svg { width:16px; height:16px; }
+  .area { position:relative; flex:1; min-height:0; margin:0 10px 10px; border-radius:12px; overflow:hidden; background:var(--bg); }
+  #mapa { position:absolute; inset:0; background:var(--bg); }
+  .faixa { position:absolute; z-index:1000; left:50%; top:12px; transform:translateX(-50%); max-width:calc(100% - 24px); background:var(--grad); color:var(--ink);
+    padding:8px 16px; border-radius:999px; font-weight:500; text-align:center; box-shadow:0 8px 20px -8px #000; pointer-events:none; }
+  .faixa.erro { background:var(--bad); top:auto; bottom:16px; }
+  .conf { position:absolute; z-index:1000; left:50%; bottom:24px; transform:translateX(-50%); width:max-content; max-width:calc(100% - 24px);
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:center; background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:10px 14px; box-shadow:0 10px 24px -10px #000; }
+  [hidden] { display:none !important; }
+  .pino { background:none; border:0; }
+  .pino svg { display:block; filter:drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+  .pino span { position:absolute; left:50%; top:42px; transform:translateX(-50%); white-space:nowrap; background:var(--panel); color:var(--fg); border:1px solid var(--line);
+    border-radius:999px; padding:2px 10px; font:500 12px "Lexend",sans-serif; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="pinGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#00b4ff"/><stop offset="1" stop-color="#4f5bff"/></linearGradient>
+  <symbol id="pin" viewBox="0 0 512 512"><path d="M185 368A172 48 0 1 0 327 368" fill="none" stroke="url(#pinGrad)" stroke-width="18" stroke-linecap="round"/>
+    <path d="M256 40C167 40 95 112 95 201C95 290 190 360 256 432C322 360 417 290 417 201C417 112 345 40 256 40Z" fill="url(#pinGrad)"/>
+    <circle cx="256" cy="190" r="70" fill="#fff"/></symbol>
+</defs></svg>
+<div class="bar"><div><h2>Mapa da casa</h2><p id="fonte">Satélite · arraste e use dois dedos para aproximar</p></div>
+  <div class="acoes"><button type="button" class="btn" onclick="mapa && marcar()">Mudar local</button>
+  <button class="round" type="button" onclick="location.href='camhouse://fechar'" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></div>
+<div class="area">
+  <div id="mapa"></div>
+  <div id="faixa" class="faixa" hidden></div>
+  <div id="msg" class="faixa erro" hidden></div>
+  <div id="conf" class="conf" hidden><span>Salvar este ponto como sua casa?</span>
+    <button type="button" class="btn forte" onclick="salvar()">Salvar</button><button type="button" class="btn" onclick="cancelar()">Cancelar</button></div>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+const msg = (t) => { $('msg').textContent = t || ''; $('msg').hidden = !t; };
+const faixa = (t) => { $('faixa').textContent = t || ''; $('faixa').hidden = !t; };
+const hash = new URLSearchParams(location.hash.slice(1));
+const casa = hash.has('lat') ? { lat: Number(hash.get('lat')), lon: Number(hash.get('lon')) } : null;
+let mapa = null, pino = null, novo = null, marcando = false;
+const PINO = '<svg viewBox="0 0 512 512" width="40" height="40"><use href="#pin"/></svg>';
+
+function ir(loc, voar) {
+  const ll = [loc.lat, loc.lon];
+  if (pino) pino.setLatLng(ll);
+  else pino = L.marker(ll, { icon: L.divIcon({ className: 'pino', html: PINO + '<span>Casa · câmeras</span>', iconSize: [40, 40], iconAnchor: [20, 38] }) }).addTo(mapa);
+  if (voar) mapa.flyTo(ll, 18, { duration: 4 }); else mapa.setView(ll, 18);
+}
+function marcar() { marcando = true; perguntar(null); faixa('Toque no mapa no lugar da sua casa para salvar'); }
+function perguntar(ll) { novo = ll; $('conf').hidden = !ll; if (ll) faixa(''); }
+function cancelar() { perguntar(null); if (marcando) faixa('Toque no mapa no lugar da sua casa para salvar'); }
+function salvar() {
+  if (!novo) return;
+  const loc = { lat: +novo.lat.toFixed(6), lon: +novo.lng.toFixed(6) };
+  marcando = false; perguntar(null); ir(loc, true);
+  $('fonte').textContent = 'Casa · ponto salvo';
+  location.href = 'camhouse://salvar?lat=' + loc.lat + '&lon=' + loc.lon;   // o app grava so neste celular
+}
+
+function iniciar() {
+  if (!window.L) { msg('Não consegui carregar o mapa. Confira a internet e abra de novo.'); return; }
+  mapa = L.map('mapa', { maxZoom: 20, zoomControl: true, attributionControl: true });
+  // shortcut: Esri so tem foto ate o zoom 17 em algumas regioes; acima disso o Leaflet amplia o 17 (subir se a Esri atualizar a regiao)
+  const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20, maxNativeZoom: 17, attribution: 'Imagens © Esri' }).addTo(mapa);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20, maxNativeZoom: 19 }).addTo(mapa);
+  let avisou = false;
+  sat.on('tileerror', () => { if (!avisou) { avisou = true; msg('Algumas imagens do satélite não carregaram. Confira a internet.'); } });
+  mapa.on('click', (e) => { if (marcando) perguntar(e.latlng); });
+  mapa.setView([-14.2, -51.9], 4);   // Brasil inteiro
+  if (casa && isFinite(casa.lat) && isFinite(casa.lon)) { $('fonte').textContent = 'Casa · ponto salvo'; setTimeout(() => ir(casa, true), 300); }
+  else { $('fonte').textContent = 'Sem posição: marque no mapa'; marcar(); }
+}
+</script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"
+  onload="iniciar()" onerror="msg('Não consegui carregar o mapa. Confira a internet e abra de novo.')"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+#!/data/data/com.termux/files/usr/bin/sh
+# Vai em ~/.termux/boot/ : o app Termux:Boot roda isto quando o celular liga.
+termux-wake-lock
+sleep 30   # da tempo do Wi-Fi conectar
+bash ~/cambox/iniciar.sh

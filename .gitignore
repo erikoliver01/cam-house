@@ -1,0 +1,55 @@
+# ===== Segredos e configuracao preenchida: NUNCA publicar =====
+segredos.json
+segredos.sh
+config.json
+config.sh
+httpd.conf
+local.json
+casa.json
+**/ssh/
+id_*
+*.key
+*.pem
+senha*.txt
+recursos-camera*.json
+
+# ===== Gravacoes, logs, backups =====
+gravacoes/
+grandes/
+logs/
+*.log
+backup*/
+*.bak*
+
+# ===== Binarios e midia que cada um baixa ou cria =====
+pc/bin/*.exe
+pc/bin/ffmpeg
+pc/bin/ffprobe
+*.mp4
+*.mp3
+*.al
+*.apk
+*.xapk
+*.aab
+*.idsig
+*.jks
+*.keystore
+
+# fontes de uso pessoal (nao redistribuir)
+*LemonMilk*
+*Lemon*Milk*
+*Rasley*
+*Quantum*
+
+# ===== Build do Android =====
+android/build/
+.gradle/
+local.properties
+.idea/
+*.iml
+*.class
+
+# ===== Sistema =====
+Thumbs.db
+desktop.ini
+.DS_Store

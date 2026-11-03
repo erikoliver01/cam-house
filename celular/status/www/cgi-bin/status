@@ -1,0 +1,10 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# Status da gravacao para o app (so leitura). Mesmo texto que o PC le por SSH (PAINEL_SH do server.js).
+export HOME=/data/data/com.termux/files/home PATH=/data/data/com.termux/files/usr/bin:$PATH
+printf "Content-Type: text/plain; charset=utf-8\r\nCache-Control: no-store\r\n\r\n"
+cd ~/cambox 2>/dev/null || { echo "ERRO sem pasta ~/cambox"; exit 0; }
+echo "AGORA $(date +%s)"
+grep -E "^(SEG|CICLO)=" config.sh 2>/dev/null | sed "s/ *#.*//"
+for p in gravacoes/*/; do [ -d "$p" ] || continue; id=$(basename "$p"); ls "$p" 2>/dev/null | grep "^rec_.*\.mp4\(\.part\)\?$" | sort | while read -r f; do echo "ARQ $id $f $(stat -c %s "$p$f" 2>/dev/null)"; done; done
+grep " enviado: " logs/envio.log 2>/dev/null | tail -n 400
+echo "PROC $(pgrep -x ffmpeg | wc -l) $(pgrep -f cambox/enviar.sh | wc -l)"

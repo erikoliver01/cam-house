@@ -1,0 +1,3 @@
+Coloque aqui o ffmpeg.exe e o ffprobe.exe (Windows).
+Baixe uma versao "release essentials" em https://www.gyan.dev/ffmpeg/builds/ e copie os dois arquivos da pasta bin do zip.
+Eles nao vem no repositorio (cada um tem ~100 MB).

@@ -1,0 +1,43 @@
+{
+  "server": {
+    "port": 8787,
+    "lan": false
+  },
+  "recording": {
+    "enabled": true,
+    "segmentSeconds": 600,
+    "keepLocalCopies": false
+  },
+  "telegram": {
+    "enabled": true,
+    "chatId": "PREENCHA_ID_DO_CANAL"
+  },
+  "celular": {
+    "host": "PREENCHA_IP_DO_CELULAR_OU_APAGUE_ESTE_BLOCO",
+    "port": 8022,
+    "key": "celular/ssh/id_ed25519"
+  },
+  "cameras": [
+    {
+      "id": "porta",
+      "name": "Porta de entrada",
+      "presets": [[1, "Preset 1"], [2, "Preset 2"], [3, "Preset 3"]],
+      "host": "PREENCHA_IP_DA_CAMERA_1",
+      "dvripPort": 34567,
+      "rtspPort": 554,
+      "rtspChannel": 1,
+      "liveStream": 0,
+      "recordStream": 1
+    },
+    {
+      "id": "camera2",
+      "name": "Câmera 2",
+      "host": "PREENCHA_IP_DA_CAMERA_2",
+      "dvripPort": 34567,
+      "rtspPort": 554,
+      "rtspChannel": 1,
+      "liveStream": 0,
+      "recordStream": 1
+    }
+  ]
+}

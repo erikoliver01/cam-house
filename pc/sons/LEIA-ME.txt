@@ -1,0 +1,4 @@
+Sons prontos do menu "Sons" (formato A-law 8 kHz mono, extensao .al).
+Para criar: na pasta pc, rode  node converter-som.js "meu som.mp3"
+Cada arquivo .al desta pasta vira um botao. Use so audios que voce tem direito de usar.
+Os .al nao vao para o GitHub (.gitignore).
